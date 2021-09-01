@@ -18,7 +18,7 @@ public class Main {
         input.add(5.0);
 
         //Suppress unnecessary logs
-        //Logger.getLogger("org.apache").setLevel(WARN);
+        Logger.getLogger("org.apache").setLevel(WARN);
 
         //represents configuration of spark
         //local[*] means use all the available cores in local machine (NOTE : not fully accurate)
@@ -36,7 +36,14 @@ public class Main {
             We can call regular Java methods.
         */
         JavaRDD<Double> inputRDD = sc.parallelize(input);
-        System.out.println(inputRDD);
+
+        /*
+            - Reduce on RDDs
+            - rdd.reduce(function) -> function that takes 2 input parameters of certain type
+              and return type is same as input type
+        */
+        Double total = inputRDD.reduce(Double::sum);
+        System.out.println(total);
         sc.close();
     }
 }
