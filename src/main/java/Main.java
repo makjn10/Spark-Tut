@@ -31,9 +31,10 @@ public class Main {
 
         //Load data in RDD
         /*
-            Spark is written in Scala.
-            JavaRDD is communicating with a SCALA RDD under the hood.
-            We can call regular Java methods.
+            - Spark is written in Scala.
+            - JavaRDD is communicating with a SCALA RDD under the hood.
+            - We can call regular Java methods.
+            - RDD is immutable, therefore we can only create a new RDD applying transformations
         */
         JavaRDD<Double> inputRDD = sc.parallelize(input);
 
@@ -43,7 +44,16 @@ public class Main {
               and return type is same as input type
         */
         Double total = inputRDD.reduce(Double::sum);
-        System.out.println(total);
+        System.out.println("Total : " + total);
+
+        /*
+            - Map on RDDs
+            - Map operation on RDD allows us to transform the structure of rdd from one
+              form to another
+        */
+        JavaRDD<Double> sqrtRDD = inputRDD.map(Math::sqrt);
+        Double sqrtTotal = sqrtRDD.reduce(Double::sum);
+        System.out.println("sqrtTotal : " + sqrtTotal);
         sc.close();
     }
 }
