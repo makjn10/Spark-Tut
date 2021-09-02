@@ -12,6 +12,7 @@ import static org.apache.log4j.Level.WARN;
 
 public class ReadingFromDisk {
     public static void main(String[] args) {
+        // If running in windows copy hadoop folder in resources to C:/ drive
         System.setProperty("hadoop.home.dir", "C:\\hadoop\\");
         Logger.getLogger("org.apache").setLevel(WARN);
 
@@ -21,7 +22,7 @@ public class ReadingFromDisk {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        sc.textFile("C:\\Users\\makjn\\Desktop\\SPARK\\Spark-Tut\\src\\main\\resources\\biglog.txt")
+        sc.textFile("src\\main\\resources\\biglog.txt")
                 .mapToPair(line -> new Tuple2<>(line.split(",")[0], 1))
                 .filter(tuple -> !(tuple._1.equals("level")))
                 .reduceByKey(Integer::sum)
