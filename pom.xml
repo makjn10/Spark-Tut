@@ -51,7 +51,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>src/main/java/Main.java</mainClass>
+                            <mainClass>src/main/java/Basic.java</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
