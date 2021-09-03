@@ -25,6 +25,8 @@ public class FlatMapsAndFilters {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
+
+        // flatMap inputs a function that must return a sequence (Iterator of an object in Java)
         sc.parallelize(logData)
                 .flatMap(value -> Arrays.asList(value.split(" ")).iterator())
                 .filter(word -> word.length() != 1)

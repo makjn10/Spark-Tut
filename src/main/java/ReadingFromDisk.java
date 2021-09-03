@@ -1,12 +1,7 @@
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import scala.Tuple2;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.apache.log4j.Level.WARN;
 
@@ -30,4 +25,3 @@ public class ReadingFromDisk {
                 .forEach(System.out::println);
     }
 }
-
