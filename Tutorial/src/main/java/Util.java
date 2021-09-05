@@ -20,7 +20,7 @@ public class Util
 	static {
 		// On the video, I say "change this class name" - ignore that.
 		// The class name should have been Util, as it is here!
-		File file = new File("src/main/resources/boringwords.txt");
+		File file = new File("Tutorial/src/main/resources/boringwords.txt");
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(file));

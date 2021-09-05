@@ -17,7 +17,7 @@ public class ReadingFromDisk {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        sc.textFile("src\\main\\resources\\biglog.txt")
+        sc.textFile("Tutorial\\src\\main\\resources\\biglog.txt")
                 .mapToPair(line -> new Tuple2<>(line.split(",")[0], 1))
                 .filter(tuple -> !(tuple._1.equals("level")))
                 .reduceByKey(Integer::sum)

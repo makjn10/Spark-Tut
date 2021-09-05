@@ -5,6 +5,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import scala.Tuple2;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 import static org.apache.log4j.Level.WARN;
 
@@ -19,7 +20,7 @@ public class Subtitles {
 
         JavaSparkContext sc = new JavaSparkContext(conf);
 
-        JavaRDD<String> inputRDD = sc.textFile("src/main/resources/input-spring.txt");
+        JavaRDD<String> inputRDD = sc.textFile("Tutorial/src/main/resources/input-spring.txt");
         inputRDD.map(line -> line.replaceAll("[^a-zA-Z\\s]", "").toLowerCase())
                 .flatMap(v -> Arrays.asList(v.split(" ")).iterator())
                 .filter(word -> word.length() > 0)
@@ -30,5 +31,8 @@ public class Subtitles {
                 .sortByKey(false)
                 .take(10)
                 .forEach(tuple -> System.out.println(tuple._2 + " has " + tuple._1 + " occurances."));
+
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
     }
 }
