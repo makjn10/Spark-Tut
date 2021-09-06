@@ -51,6 +51,8 @@ public class PairRDDUse {
         /*
             reduceByKey function on pairRDD
             - It wll return a PairRDD with one entry for each key : <K, Integer>
+            - It will do a reduce on partition first (Map side reduce) -> then a shuffle -> then again reduce on partitions
+            - Greatly reduces the amount of data shuffled than groupByKey
          */
         // FLUENT API
         sc.parallelize(logData)
