@@ -29,3 +29,6 @@ out/
 
 # Maven
 target/
+
+#Big files
+Tutorial/src/main/resources/bigLog.txt
