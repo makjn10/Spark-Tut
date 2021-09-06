@@ -1,4 +1,4 @@
-#Spark Arch.
+# Spark Arch.
 - ![img.png](public/sparkarch.png)
 - ![img.png](public/jobsStagesTasks.png)
 - ![img.png](public/modes.png)
