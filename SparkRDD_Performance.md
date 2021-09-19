@@ -39,10 +39,10 @@
   - GC is Garbage Collection
 
 # groupByKey performance 
-- We have data of form
-  ERROR: Thu Jun 04 10:37:51 BST 2015
-  WARN: Sun Nov 06 10:37:51 GMT 2016
-  WARN: Mon Aug 29 10:37:51 BST 2016
+- We have data of form <br>
+  ERROR: Thu Jun 04 10:37:51 BST 2015 <br>
+  WARN: Sun Nov 06 10:37:51 GMT 2016 <br>
+  WARN: Mon Aug 29 10:37:51 BST 2016 <br>
 - We want to count how many lines are of WARN and how many of ERROR. We write following code :
   ````java
   public class PartitionTesting {
