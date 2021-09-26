@@ -69,8 +69,6 @@
 		
         // Now we're going to do a "wide" transformation
         JavaPairRDD<String, Iterable<String>> results = warningsAgainstDate.groupByKey();
-		
-        results = results.persist(StorageLevel.MEMORY_AND_DISK());
         System.out.println(results.getNumPartitions() + " partitions after the wide transformation");
         results.foreach(it -> System.out.println("key " + it._1 + " has " + Iterables.size(it._2) + " elements"));
         System.out.println(results.count());
@@ -84,7 +82,16 @@
 - The output for groupByKey stage is : 
   - ![img.png](public/groupbykey.png)
   - Here we can see only 2 of the tasks are doing all the job as there are two keys in total and thus very huge time for these 2 tasks
-  - A partition has all WARN keys and second partition has all ERROR keys, all other partitions are empty
+  - A partition has all WARN keys and second partition has all ERROR keys, all other partitions are empty. So huge amount of data is on a single node (if jobs running on cluster).
+  - Therefore, out of memory exception can occur even if we have large no. of nodes in cluster
+  - In above program instead of groupByKey(), we could have used mapToPair() followed by reduceByKey((x, y) -> (x + y)).
+  - reduceByKey() has two phases : 
+    - Phase 1 reduces the partitions without shuffling (called a **map-side reduce**)
+    - Phase 2 shuffles and reduces by key
+    - ![map-side_reduce1.jpeg](public/map-side_reduce1.jpeg)
+    - ![map-side_reduce2.jpeg](public/map-side_reduce2.jpeg)
+    - ![map-side_reduce3.jpeg](public/map-side_reduce3.jpeg)
+    - ![map-side_reduce4.jpeg](public/map-side_reduce4.jpeg)
 
 # Dealing with skew data
 - ![skew1.jpg](public/skew1.jpg)
@@ -92,3 +99,59 @@
   - ![skew2.jpg](public/skew2.jpg)
   - Salting just mangles the keys to artificially spread them across the partitions. At some point we to group it together
   - Change the keys' name so that skewed keys are distributed. Here the numbers in the changed names are called **SALTS**
+
+# Caching and Persistence
+- Once an ACTION completes, the RDD in memory is discarded and if we call another action on same RDD, all the steps for building it will be executed again.
+- For example, in the code mentioned above (in groupBy performance), there are two actions : foreach() and count(). The DAGs are as follows<br>
+- ![img.png](public/candp1.png)
+- ![img.png](public/candp2.png)
+- ![img.png](public/candp3.png)
+- Here we can see for count() action a separate stage (STAGE 3) is run. Although there is certain optimizations performed here by Spark (thus skipping STAGE 2 for count() action).
+- The shuffle writes the result in disk after stage 0 as **shuffle write**, which is read by stage 3 which can be seen as **shuffle read**.
+- Thus, it not always need to start from beginning, it can restart from last shuffle stage due to optimizations done by Spark.   
+
+- Now we can tell spark to store a RDD in memory and keep it there for future operations.
+- Spark’s cache is fault-tolerant – if any partition of an RDD is lost, it will automatically be recomputed using the transformations that originally created it
+- ```java
+    // Now we're going to do a "wide" transformation
+    JavaPairRDD<String, Iterable<String>> results = warningsAgainstDate.groupByKey();	
+    
+    // Operation on RDD - it returns an object
+    // Actual data needs to be stored physically in memory
+    // This will only work  if there is enough space in RAM
+    results = results.cache();
+  ```
+- The above code gives these WARNINGS as RAM is not sufficient on my machine. If the RDD does not fit in memory, some partitions will not be cached and will be recomputed on the fly each time they're needed.
+- ![cacheWARN.png](public/cacheWARN.png)
+- So, try tu use .cache() method on smaller RDDs.
+
+- In addition, each persisted RDD can be stored using a different storage level, allowing you, for example, to persist the dataset on disk, persist it in memory but as serialized Java objects (to save space), replicate it across nodes. These levels are set by passing a StorageLevel object (Scala, Java, Python) to persist(). The cache() method is a shorthand for using the default storage level, which is StorageLevel.MEMORY_ONLY (store deserialized objects in memory).
+
+- Spark also automatically persists some intermediate data in shuffle operations (e.g. reduceByKey), even without users calling persist. This is done to avoid recomputing the entire input if a node fails during the shuffle.
+
+- Other alternative is to use .persist(Input of type StorageLevel) method
+  - There are various Storage levels present:
+    ![img.png](public/storagelevels.png)
+  - ```java
+        // Now we're going to do a "wide" transformation
+        JavaPairRDD<String, Iterable<String>> results = warningsAgainstDate.groupByKey();
+
+        // Operation on RDD - it returns an object
+        // Actual data needs to be stored physically in memory
+        // Using this we can also store RDD data in disk as well as memory
+        results = results.persist(StorageLevel.MEMORY_AND_DISK());
+		
+        // works on cached data
+        results.foreach(it -> System.out.println("key " + it._1 + " has " + Iterables.size(it._2) + " elements"));
+        // works on cached data
+        System.out.println(results.count());
+    ```
+  - The output of above code is as follows : 
+    ![img.png](public/persistoutput.png)
+  - As we can see, spark persists the rdd data to disk when space in RAM is not sufficient.
+  - The spark UI DAGS are as follows:
+    - ![img.png](public/persistdag1.png)
+    - ![img_1.png](public/persistdag2.png)
+    - ![img_2.png](public/persistdag3.png)
+  - Although they look similar to the DAGS present without caching, but a minute difference is a green dot present in stage 1 and 3. In stage 1 it tells that the RDD data was cached and in stage 3 it tells that the data was read from cache.
+  - ![img_3.png](public/persistdag4.png)

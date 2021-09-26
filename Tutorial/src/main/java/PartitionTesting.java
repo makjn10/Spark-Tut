@@ -30,22 +30,29 @@ public class PartitionTesting {
 		
 		JavaPairRDD<String, String> warningsAgainstDate = initialRdd.mapToPair( inputLine -> {
 			String[] cols = inputLine.split(":");
-			String level = cols[0];
-			String date = cols[1];
-			return new Tuple2<>(level, date);
+			return new Tuple2<>(cols[0], cols[1]);
 		});
 		
 		System.out.println("After a narrow transformation we have " + warningsAgainstDate.getNumPartitions() + " parts");
 		
 		// Now we're going to do a "wide" transformation
 		JavaPairRDD<String, Iterable<String>> results = warningsAgainstDate.groupByKey();
-		
+
+		// Operation on RDD - it returns an object
+		// Actual data needs to be stored physically in memory
+		// This will only work  if there is enough space in RAM
+		//results = results.cache();
+
+		// Operation on RDD - it returns an object
+		// Actual data needs to be stored physically in memory
+		// Using this we can also store RDD data in disk as well as memory
 		results = results.persist(StorageLevel.MEMORY_AND_DISK());
 		
 		System.out.println(results.getNumPartitions() + " partitions after the wide transformation");
-		
+
+		// works on cached data
 		results.foreach(it -> System.out.println("key " + it._1 + " has " + Iterables.size(it._2) + " elements"));
-		
+		// works on cached data
 		System.out.println(results.count());
 		
 		Scanner scanner = new Scanner(System.in);
