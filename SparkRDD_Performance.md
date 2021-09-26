@@ -32,6 +32,7 @@
 
 # Shuffles
 - **STAGE** : Series of transformations that don't need shuffle. When a shuffle is required Spark creates a new stage.
+- Independent stages can run in parallel
 - ![img.png](public/DAGshuffle.png)
 - Between the stages : A shuffle write is done, where data is written on disk, so hat it can be serialized and then read by next stage (PUSH - PULL Model)
 - Other info in UI : 
@@ -152,6 +153,6 @@
   - The spark UI DAGS are as follows:
     - ![img.png](public/persistdag1.png)
     - ![img_1.png](public/persistdag2.png)
-    - ![img_2.png](public/persistdag3.png)
+    - ![img.png](public/persistdag3.png)
   - Although they look similar to the DAGS present without caching, but a minute difference is a green dot present in stage 1 and 3. In stage 1 it tells that the RDD data was cached and in stage 3 it tells that the data was read from cache.
   - ![img_3.png](public/persistdag4.png)
